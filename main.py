@@ -56,11 +56,15 @@ if __name__ == "__main__":
             print("Total Hours Taken: ", cursor.fetchone()[0])
         elif answer.lower() == "query":
             cat_sql = prompt(
-                "Do you want to do an SQL Query or Category Query? (SQL/Category)",
+                "Do you want to do an SQL Query or Category Query? (SQL/Category) ",
                 completer=WordCompleter(["SQL", "Category", "sql", "category"]),
             )
             if cat_sql.lower() == "category":
-                cat_sql = prompt("Which category do you want to view? ")
+                cursor.execute("SELECT DISTINCT(category) from report;")
+                cat_sql = prompt(
+                    "Which category do you want to view? ",
+                    completer=WordCompleter([cat for cat in cursor.fetchall()[0]]),
+                )
 
     elif answer.lower() == "add":
         date = prompt(
