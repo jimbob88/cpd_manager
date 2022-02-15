@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from click import style
+from email import header
+from more_itertools import first
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.styles import Style
@@ -7,7 +8,7 @@ from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator
 import re
-
+import tabulate
 import mysql.connector
 
 if __name__ == "__main__":
@@ -31,7 +32,29 @@ if __name__ == "__main__":
         ),
     )
     if answer.lower() == "view":
-        pass
+        answer = prompt(
+            "Do you want to do a Query or view a Table? (Query/Table) ",
+            completer=WordCompleter(["Query", "Table"]),
+        )
+        if answer.lower() == "table":
+            print("TABLE")
+            cursor.execute("SELECT * from report")
+            print(
+                tabulate.tabulate(
+                    cursor,
+                    headers=[
+                        "id",
+                        "date",
+                        "activity",
+                        "brief_description",
+                        "values_obtained",
+                        "hours_spent",
+                        "category",
+                    ],
+                )
+            )
+            # for row in cursor:
+            #     print(row)
 
     elif answer.lower() == "add":
         date = prompt(
