@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from prompt_toolkit import prompt
+from prompt_toolkit import prompt, print_formatted_text
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.styles import Style
 from prompt_toolkit.shortcuts import set_title
@@ -84,8 +84,8 @@ if __name__ == "__main__":
 
         elif answer.lower() == "export":
             fmt = prompt(
-                "What format do you want to use? (CSV)",
-                completer=WordCompleter(["CSV"]),
+                "What format do you want to use? (CSV) ",
+                completer=WordCompleter(["CSV", "csv"]),
                 validator=Validator.from_callable(
                     lambda x: x in ["CSV", "csv"],
                     error_message="Not a valid format",
@@ -93,6 +93,11 @@ if __name__ == "__main__":
                 ),
             )
             if fmt.lower() == "csv":
+                print_formatted_text(
+                    HTML(
+                        "<ansired>WARNING: CSV'S DO NOT HAVE MULTI-LINE SUPPORT</ansired>"
+                    )
+                )
                 cursor.execute("SELECT * FROM report")
                 with open("export.csv", mode="w", newline="") as export_csv:
                     csv_writer = csv.writer(
@@ -104,6 +109,8 @@ if __name__ == "__main__":
                     csv_writer.writerow([i[0] for i in cursor.description])
                     for row in cursor:
                         csv_writer.writerow(row)
+
+                print_formatted_text(HTML("<green>Exported CSV Successfully</green>"))
 
     elif answer.lower() == "add":
         date = prompt(
