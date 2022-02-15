@@ -26,7 +26,7 @@ if __name__ == "__main__":
     # Main
     answer = prompt(
         HTML("Would you like to <view>View</view> or <add>Add</add> to your CPD? "),
-        completer=WordCompleter(["View", "Add"]),
+        completer=WordCompleter(["View", "Add", "view", "add"]),
         style=Style.from_dict(
             {"view": "#0000FF underline", "add": "#00FF00 underline",}
         ),
@@ -34,10 +34,9 @@ if __name__ == "__main__":
     if answer.lower() == "view":
         answer = prompt(
             "Do you want to do a Query or view a Table? (Query/Table) ",
-            completer=WordCompleter(["Query", "Table"]),
+            completer=WordCompleter(["Query", "Table", "query", "table"]),
         )
         if answer.lower() == "table":
-            print("TABLE")
             cursor.execute("SELECT * from report")
             print(
                 tabulate.tabulate(
@@ -53,8 +52,15 @@ if __name__ == "__main__":
                     ],
                 )
             )
-            # for row in cursor:
-            #     print(row)
+            cursor.execute(" SELECT sum(hours_spent) from report;")
+            print("Total Hours Taken: ", cursor.fetchone()[0])
+        elif answer.lower() == "query":
+            cat_sql = prompt(
+                "Do you want to do an SQL Query or Category Query? (SQL/Category)",
+                completer=WordCompleter(["SQL", "Category", "sql", "category"]),
+            )
+            if cat_sql.lower() == "category":
+                cat_sql = prompt("Which category do you want to view? ")
 
     elif answer.lower() == "add":
         date = prompt(
