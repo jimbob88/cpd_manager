@@ -30,12 +30,12 @@ if __name__ == "__main__":
         style=Style.from_dict(
             {"view": "#0000FF underline", "add": "#00FF00 underline",}
         ),
-    )
+    ).strip()
     if answer.lower() == "view":
         answer = prompt(
             "Do you want to do a Query or view a Table? (Query/Table) ",
             completer=WordCompleter(["Query", "Table", "query", "table"]),
-        )
+        ).strip()
         if answer.lower() == "table":
             cursor.execute("SELECT * from report")
             print(
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                 )
             )
             cursor.execute(" SELECT sum(hours_spent) from report;")
-            print("Total Hours Taken: ", cursor.fetchone()[0])
+            print("\nTotal Hours Taken: ", cursor.fetchone()[0])
         elif answer.lower() == "query":
             cat_sql = prompt(
                 "Do you want to do an SQL Query or Category Query? (SQL/Category) ",
@@ -61,9 +61,35 @@ if __name__ == "__main__":
             )
             if cat_sql.lower() == "category":
                 cursor.execute("SELECT DISTINCT(category) from report;")
-                cat_sql = prompt(
-                    "Which category do you want to view? ",
-                    completer=WordCompleter([cat for cat in cursor.fetchall()[0]]),
+                categories = [cat[0] for cat in cursor.fetchall()]
+                print(
+                    tabulate.tabulate(
+                        [[cat] for cat in categories], headers=["Category Name"]
+                    )
+                )
+                category = prompt(
+                    "\nWhich category do you want to view? ",
+                    completer=WordCompleter(categories),
+                    validator=Validator.from_callable(
+                        lambda x: x in categories,
+                        error_message="Not a valid category",
+                        move_cursor_to_end=True,
+                    ),
+                ).strip()
+                cursor.execute('SELECT * FROM report WHERE category="%s";' % category)
+                print(
+                    tabulate.tabulate(
+                        cursor,
+                        headers=[
+                            "id",
+                            "date",
+                            "activity",
+                            "brief_description",
+                            "values_obtained",
+                            "hours_spent",
+                            "category",
+                        ],
+                    )
                 )
 
     elif answer.lower() == "add":
@@ -74,7 +100,7 @@ if __name__ == "__main__":
                 error_message="Not a valid date (Must be in the form DD/MM/YYYY).",
                 move_cursor_to_end=True,
             ),
-        )
+        ).strip()
         activity = prompt("Activity: ")
         brief_description = prompt(
             HTML(
@@ -82,14 +108,14 @@ if __name__ == "__main__":
             ),
             multiline=True,
             style=Style.from_dict({"green": "#00FF00 underline"}),
-        )
+        ).strip()
         value_obtained = prompt(
             HTML(
                 "Value Obtained: (ESCAPE followed by ENTER to accept)\n <green>&#62;</green> "
             ),
             multiline=True,
             style=Style.from_dict({"green": "#00FF00 underline"}),
-        )
+        ).strip()
         hours_spent = prompt(
             HTML("<how>How</how> many hours did you spend (flt)? "),
             validator=Validator.from_callable(
@@ -97,11 +123,11 @@ if __name__ == "__main__":
                 error_message="Not a valid number (Must be a float or integer).",
                 move_cursor_to_end=True,
             ),
-        )
+        ).strip()
         category = prompt(
             HTML("Category: <green>(OPTIONAL)</green> "),
             style=Style.from_dict({"green": "#00FF00 underline"}),
-        )
+        ).strip()
 
         add_entry = (
             "INSERT INTO report "
