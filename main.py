@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from click import style
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.styles import Style
@@ -22,7 +23,7 @@ if __name__ == "__main__":
         pass
 
     elif answer.lower() == "add":
-        prompt(
+        date = prompt(
             HTML("<when>When</when> did you complete this learning (DD/MM/YYYY)? "),
             validator=Validator.from_callable(
                 lambda x: re.search(r"\d{2}/\d{2}/\d{4}", x),
@@ -30,4 +31,29 @@ if __name__ == "__main__":
                 move_cursor_to_end=True,
             ),
         )
-
+        brief_description = prompt(
+            HTML(
+                "Brief Description: (ESCAPE followed by ENTER to accept)\n <green>&#62;</green> "
+            ),
+            multiline=True,
+            style=Style.from_dict({"green": "#00FF00 underline"}),
+        )
+        value_obtained = prompt(
+            HTML(
+                "Value Obtained: (ESCAPE followed by ENTER to accept)\n <green>&#62;</green> "
+            ),
+            multiline=True,
+            style=Style.from_dict({"green": "#00FF00 underline"}),
+        )
+        hours_spent = prompt(
+            HTML("<how>How</how> many hours did you spend (flt)? "),
+            validator=Validator.from_callable(
+                lambda x: re.search(r"\d+(?:\.)?", x),
+                error_message="Not a valid number (Must be a float or integer).",
+                move_cursor_to_end=True,
+            ),
+        )
+        category = prompt(
+            HTML("Category: <green>(OPTIONAL)</green>"),
+            style=Style.from_dict({"green": "#00FF00 underline"}),
+        )
