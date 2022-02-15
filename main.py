@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-from email import header
-from more_itertools import first
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.styles import Style
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator
+from prompt_toolkit.lexers import PygmentsLexer
+from pygments.lexers.sql import SqlLexer
 import re
 import tabulate
 import mysql.connector
@@ -89,6 +89,13 @@ if __name__ == "__main__":
                             "hours_spent",
                             "category",
                         ],
+                    )
+                )
+            elif cat_sql.lower() == "sql":
+                cursor.execute(prompt("> ", lexer=PygmentsLexer(SqlLexer)))
+                print(
+                    tabulate.tabulate(
+                        cursor, headers=[i[0] for i in cursor.description],
                     )
                 )
 
