@@ -1,3 +1,14 @@
+# Continuous Personal Development Manager (CLI)
+This is a command line pice of software that connects with a [MySQL](https://dev.mysql.com/downloads/) Server in order to keep a record of your personal development!
+
+## Features
+- Ability to export to a csv for distribution
+- Efficient storage system using SQL
+- Fast
+- Autocompletion of commands
+- Automatic colouring of commands when you need to type something in SQL
+- Fancy (TABULATE) table formatting
+
 ## Creating the database
 
 ```sql
