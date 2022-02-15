@@ -8,10 +8,20 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator
 import re
 
+import mysql.connector
 
 if __name__ == "__main__":
     set_title("CPD Manager")
 
+    # Setup MySQL
+    user = prompt("User: ")
+    passwd = prompt("Password: ", is_password=True)
+
+    cnx = mysql.connector.connect(
+        user=user, password=passwd, host="127.0.0.1", database="cpd"
+    )
+
+    # Main
     answer = prompt(
         HTML("Would you like to <view>View</view> or <add>Add</add> to your CPD? "),
         completer=WordCompleter(["View", "Add"]),
@@ -31,6 +41,7 @@ if __name__ == "__main__":
                 move_cursor_to_end=True,
             ),
         )
+        activity = prompt("Activity: ")
         brief_description = prompt(
             HTML(
                 "Brief Description: (ESCAPE followed by ENTER to accept)\n <green>&#62;</green> "
@@ -57,3 +68,5 @@ if __name__ == "__main__":
             HTML("Category: <green>(OPTIONAL)</green>"),
             style=Style.from_dict({"green": "#00FF00 underline"}),
         )
+
+    cnx.close()
