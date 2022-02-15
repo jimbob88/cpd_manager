@@ -20,6 +20,7 @@ if __name__ == "__main__":
     cnx = mysql.connector.connect(
         user=user, password=passwd, host="127.0.0.1", database="cpd"
     )
+    cursor = cnx.cursor()
 
     # Main
     answer = prompt(
@@ -65,8 +66,25 @@ if __name__ == "__main__":
             ),
         )
         category = prompt(
-            HTML("Category: <green>(OPTIONAL)</green>"),
+            HTML("Category: <green>(OPTIONAL)</green> "),
             style=Style.from_dict({"green": "#00FF00 underline"}),
         )
 
+        add_entry = (
+            "INSERT INTO report "
+            "(date, activity, brief_description, values_obtained, hours_spent, category) "
+            "VALUES (%(date)s, %(activity)s, %(brief_description)s, %(value_obtained)s, %(hours_spent)s, %(category)s)"
+        )
+        data = {
+            "date": date[-4:] + "-" + date[3:-5] + "-" + date[:2],
+            "activity": activity,
+            "brief_description": brief_description,
+            "value_obtained": value_obtained,
+            "hours_spent": hours_spent,
+            "category": category,
+        }
+        cursor.execute(add_entry, data)
+        cnx.commit()
+
+    cursor.close()
     cnx.close()
