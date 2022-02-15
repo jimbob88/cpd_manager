@@ -10,6 +10,7 @@ from pygments.lexers.sql import SqlLexer
 import re
 import tabulate
 import mysql.connector
+import csv
 
 if __name__ == "__main__":
     set_title("CPD Manager")
@@ -33,24 +34,15 @@ if __name__ == "__main__":
     ).strip()
     if answer.lower() == "view":
         answer = prompt(
-            "Do you want to do a Query or view a Table? (Query/Table) ",
-            completer=WordCompleter(["Query", "Table", "query", "table"]),
+            "Do you want to do a Query or view a Table or Export? (Query/Table/Export) ",
+            completer=WordCompleter(
+                ["Query", "Table", "Export", "query", "table", "export"]
+            ),
         ).strip()
         if answer.lower() == "table":
             cursor.execute("SELECT * from report")
             print(
-                tabulate.tabulate(
-                    cursor,
-                    headers=[
-                        "id",
-                        "date",
-                        "activity",
-                        "brief_description",
-                        "values_obtained",
-                        "hours_spent",
-                        "category",
-                    ],
-                )
+                tabulate.tabulate(cursor, headers=[i[0] for i in cursor.description],)
             )
             cursor.execute(" SELECT sum(hours_spent) from report;")
             print("\nTotal Hours Taken: ", cursor.fetchone()[0])
@@ -79,16 +71,7 @@ if __name__ == "__main__":
                 cursor.execute('SELECT * FROM report WHERE category="%s";' % category)
                 print(
                     tabulate.tabulate(
-                        cursor,
-                        headers=[
-                            "id",
-                            "date",
-                            "activity",
-                            "brief_description",
-                            "values_obtained",
-                            "hours_spent",
-                            "category",
-                        ],
+                        cursor, headers=[i[0] for i in cursor.description],
                     )
                 )
             elif cat_sql.lower() == "sql":
@@ -98,6 +81,29 @@ if __name__ == "__main__":
                         cursor, headers=[i[0] for i in cursor.description],
                     )
                 )
+
+        elif answer.lower() == "export":
+            fmt = prompt(
+                "What format do you want to use? (CSV)",
+                completer=WordCompleter(["CSV"]),
+                validator=Validator.from_callable(
+                    lambda x: x in ["CSV", "csv"],
+                    error_message="Not a valid format",
+                    move_cursor_to_end=True,
+                ),
+            )
+            if fmt.lower() == "csv":
+                cursor.execute("SELECT * FROM report")
+                with open("export.csv", mode="w", newline="") as export_csv:
+                    csv_writer = csv.writer(
+                        export_csv,
+                        delimiter=",",
+                        quotechar='"',
+                        quoting=csv.QUOTE_MINIMAL,
+                    )
+                    csv_writer.writerow([i[0] for i in cursor.description])
+                    for row in cursor:
+                        csv_writer.writerow(row)
 
     elif answer.lower() == "add":
         date = prompt(
